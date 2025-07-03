@@ -1,8 +1,12 @@
 // script.js
-let tasks = [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function playSound(id) {
   document.getElementById(id).play();
+}
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 function addTask() {
@@ -10,8 +14,8 @@ function addTask() {
   const date = document.getElementById("dueDate").value;
   const cat = document.getElementById("category").value;
   const priority = document.getElementById("priority").value;
-  const imgFile = document.getElementById("imgInput").files[0];
-  const repeat = document.getElementById("repeatTask")?.value;
+  const imgFile = document.getElementById("imgInput")?.files[0];
+  const repeat = document.getElementById("repeat").value;
 
   if (!input.value.trim()) return;
 
@@ -28,10 +32,11 @@ function addTask() {
 
   tasks.push(task);
   input.value = "";
-  document.getElementById("imgInput").value = "";
+  if (document.getElementById("imgInput")) document.getElementById("imgInput").value = "";
   displayTasks();
   playSound("ding");
   scheduleReminder(task);
+  saveTasks();
 }
 
 function displayTasks(filter = "all") {
@@ -63,7 +68,7 @@ function displayTasks(filter = "all") {
       content += `<br><img src="${task.img}" alt="Task Image" />`;
     }
 
-    if (task.repeat && task.repeat !== 'none') {
+    if (task.repeat && task.repeat !== 'None') {
       content += `<br><small>🔁 Repeats: ${task.repeat}</small>`;
     }
 
@@ -72,13 +77,14 @@ function displayTasks(filter = "all") {
   });
 
   updateStats();
+  saveTasks();
 }
 
 function toggleTask(i) {
   tasks[i].done = !tasks[i].done;
   playSound("complete");
 
-  if (tasks[i].repeat && tasks[i].done) {
+  if (tasks[i].repeat && tasks[i].done && tasks[i].repeat !== "None") {
     const next = getNextDate(tasks[i].date, tasks[i].repeat);
     if (next) {
       tasks.push({ ...tasks[i], done: false, date: next });
@@ -101,6 +107,7 @@ function filterTasks(type) {
 function clearAll() {
   tasks = [];
   displayTasks();
+  saveTasks();
 }
 
 function exportTasks(type) {
@@ -128,9 +135,9 @@ function updateStats() {
 function getNextDate(dateStr, repeatType) {
   const d = new Date(dateStr);
   if (isNaN(d)) return null;
-  if (repeatType === "daily") d.setDate(d.getDate() + 1);
-  else if (repeatType === "weekly") d.setDate(d.getDate() + 7);
-  else if (repeatType === "monthly") d.setMonth(d.getMonth() + 1);
+  if (repeatType === "Daily") d.setDate(d.getDate() + 1);
+  else if (repeatType === "Weekly") d.setDate(d.getDate() + 7);
+  else if (repeatType === "Monthly") d.setMonth(d.getMonth() + 1);
   return d.toISOString().split('T')[0];
 }
 
@@ -146,3 +153,6 @@ function scheduleReminder(task) {
     }, 3000);
   }
 }
+
+// Initial display
+displayTasks();
