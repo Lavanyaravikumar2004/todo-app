@@ -248,3 +248,48 @@ input[type="time"] {
   gap: 10px;
   margin-top: 20px;
 }
+.calendar-today {
+  background-color: #e0c3ff;
+  border-left: 5px solid #6a0dad;
+}
+
+#auth-section input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+#auth-section button {
+  width: 48%;
+  background: #6a0dad;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#auth-section button:hover {
+  background: #5100b3;
+}
+#auth-section input,
+#auth-section button {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+#auth-section button {
+  background: #6a0dad;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#auth-section button:hover {
+  background: #5100b3;
+}

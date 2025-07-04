@@ -1,4 +1,4 @@
-<!-- index.html (Enhanced Pro To-Do App) -->
+<!-- index.html (Final Interview-Ready Pro To-Do App) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +7,6 @@
   <title>Pro To-Do App</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <meta name="theme-color" content="#6a0dad" />
 </head>
 <body>
@@ -18,7 +16,7 @@
       <button id="toggleTheme">🌙</button>
       <button onclick="startVoiceInput()">🎤</button>
       <button onclick="toggleCalendarView()">📅 Calendar View</button>
-     <div id="calendarContainer" style="display:none;"></div>
+      <div id="calendarContainer" style="display:none;"></div>
       <div id="userInfo"></div>
     </header>
 
@@ -31,14 +29,11 @@
 
     <section class="input-section" style="display:none">
       <div style="display: flex; gap: 5px; align-items: center;">
-  <input type="text" id="taskInput" placeholder="➕ Add new task" style="flex: 1;" />
-  <button onclick="startVoice()" title="🎤 Voice Input">🎤</button>
-</div>
+        <input type="text" id="taskInput" placeholder="➕ Add new task" style="flex: 1;" />
+        <button onclick="startVoiceInput()" title="🎤 Voice Input">🎤</button>
+      </div>
       <input type="date" id="dueDate" />
       <input type="time" id="dueTime" />
-      <!-- ... rest unchanged -->
-       <noscript>Your browser does not support voice input.</noscript>
-
       <select id="category">
         <option value="📚 Study">📚 Study</option>
         <option value="💼 Work">💼 Work</option>
@@ -49,7 +44,7 @@
         <option value="Medium">🟡 Medium</option>
         <option value="High">🔴 High</option>
       </select>
-      <select id="repeatTask">
+      <select id="repeat">
         <option value="none">🔁 No Repeat</option>
         <option value="daily">🔁 Daily</option>
         <option value="weekly">🔁 Weekly</option>
@@ -57,7 +52,6 @@
       </select>
       <input type="file" id="imgInput" />
       <button onclick="addTask()">Add</button>
-      <button onclick="startVoiceInput()">🎤</button>
     </section>
 
     <section class="search-filter" style="display:none">
@@ -66,9 +60,7 @@
         <button onclick="filterTasks('all')">All</button>
         <button onclick="filterTasks('completed')">Completed</button>
         <button onclick="filterTasks('pending')">Pending</button>
-        <button onclick="toggleCalendar()">📅 Calendar View</button>
-<div id="calendarView" style="display:none; margin-top: 20px;"></div>
-
+      </div>
     </section>
 
     <ul id="taskList"></ul>
@@ -82,10 +74,12 @@
     </footer>
   </div>
 
+  <!-- Sound Effects -->
   <audio id="ding" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c9e3f979b5.mp3?filename=click-124467.mp3" preload="auto"></audio>
   <audio id="delete" src="https://cdn.pixabay.com/download/audio/2022/03/18/audio_f3a993177d.mp3?filename=pop-94319.mp3" preload="auto"></audio>
   <audio id="complete" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_48bde99868.mp3?filename=notification-112698.mp3" preload="auto"></audio>
 
+  <!-- Calendar Modal -->
   <div id="calendarModal" class="modal" style="display:none">
     <div class="modal-content">
       <span class="close" onclick="document.getElementById('calendarModal').style.display='none'">&times;</span>
@@ -93,11 +87,12 @@
     </div>
   </div>
 
+  <!-- App Script -->
   <script src="script.js"></script>
-  <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </body>
 </html>

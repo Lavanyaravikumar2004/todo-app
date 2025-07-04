@@ -23,7 +23,6 @@ function saveTasks() {
 }
 
 function addTask() {
-  saveTaskToFirebase(task);
   const input = document.getElementById("taskInput");
   const date = document.getElementById("dueDate").value;
   const time = document.getElementById("dueTime").value;
@@ -47,6 +46,7 @@ function addTask() {
   };
 
   tasks.push(task);
+  saveTaskToFirebase(task);
   input.value = "";
   document.getElementById("imgInput")?.value = "";
   saveTasks();
@@ -86,7 +86,6 @@ function displayTasks(filter = "all") {
   const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
   list.innerHTML = "";
 
-  const today = new Date().toISOString().split('T')[0];
   const filtered = tasks
     .filter(task => {
       if (filter === "completed") return task.done;
@@ -104,8 +103,8 @@ function displayTasks(filter = "all") {
       <span onclick="toggleTask(${i})" style="cursor:pointer;">
         ${task.done ? '✅' : '⬜'} ${task.text} (${task.date}) [${task.cat}] <strong>[${task.priority}]</strong>
       </span>
-      ${task.img ? `<br><img src="${task.img}" alt="Task Image" style="max-width:100px;"/>` : ""}
-      ${task.repeat !== 'None' ? `<br><small>🔁 ${task.repeat}</small>` : ""}
+      ${task.img ? `<br><img src="${task.img}" alt="Task Image" />` : ""}
+      ${task.repeat !== 'none' ? `<br><small>🔁 ${task.repeat}</small>` : ""}
       <button onclick="deleteTask(${i})">❌</button>
     `;
     list.appendChild(li);
@@ -117,7 +116,7 @@ function toggleTask(i) {
   tasks[i].done = !tasks[i].done;
   playSound("complete");
 
-  if (tasks[i].done && tasks[i].repeat !== "None") {
+  if (tasks[i].done && tasks[i].repeat !== "none") {
     const next = getNextDate(tasks[i].date, tasks[i].repeat);
     if (next) {
       tasks.push({ ...tasks[i], done: false, date: next });
@@ -127,6 +126,7 @@ function toggleTask(i) {
   saveTasks();
   displayTasks();
 }
+
 function deleteTask(i) {
   const taskItem = document.querySelectorAll("#taskList li")[i];
   if (taskItem) {
@@ -135,7 +135,7 @@ function deleteTask(i) {
       tasks.splice(i, 1);
       playSound("delete");
       displayTasks();
-    }, 300); // Wait for animation
+    }, 300);
   }
 }
 
@@ -161,19 +161,15 @@ function filterTasks(type) {
 }
 
 document.getElementById("searchInput")?.addEventListener("input", () => displayTasks());
-// 🌗 Persist Light/Dark Theme
-const toggleBtn = document.getElementById("toggleTheme");
 
-// Load theme on start
+// 🌗 Theme toggle
+const toggleBtn = document.getElementById("toggleTheme");
 if (localStorage.getItem("theme") === "dark") {
   document.body.classList.add("dark");
 }
-
-// Toggle theme on click
 toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark");
-  const theme = document.body.classList.contains("dark") ? "dark" : "light";
-  localStorage.setItem("theme", theme);
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
 });
 
 function updateStats() {
@@ -184,10 +180,9 @@ function updateStats() {
 
 function getNextDate(dateStr, repeatType) {
   const d = new Date(dateStr);
-  if (isNaN(d)) return null;
-  if (repeatType === "Daily") d.setDate(d.getDate() + 1);
-  else if (repeatType === "Weekly") d.setDate(d.getDate() + 7);
-  else if (repeatType === "Monthly") d.setMonth(d.getMonth() + 1);
+  if (repeatType === "daily") d.setDate(d.getDate() + 1);
+  else if (repeatType === "weekly") d.setDate(d.getDate() + 7);
+  else if (repeatType === "monthly") d.setMonth(d.getMonth() + 1);
   return d.toISOString().split('T')[0];
 }
 
@@ -197,10 +192,9 @@ function scheduleReminder(task) {
 
   const now = new Date();
   const taskDateTime = new Date(`${task.date}T${task.time || "09:00"}`);
-
   const delay = taskDateTime.getTime() - now.getTime();
 
-  if (delay > 0 && delay < 86400000) { // Within 24 hrs
+  if (delay > 0 && delay < 86400000) {
     setTimeout(() => {
       new Notification("🔔 Task Reminder", {
         body: `${task.text} is due now!`
@@ -209,9 +203,6 @@ function scheduleReminder(task) {
   }
 }
 
-
-// Initial Load
-displayTasks();
 function startVoiceInput() {
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = 'en-IN';
@@ -220,19 +211,17 @@ function startVoiceInput() {
 
   recognition.start();
   recognition.onresult = (event) => {
-    const speechResult = event.results[0][0].transcript;
-    document.getElementById("taskInput").value = speechResult;
+    document.getElementById("taskInput").value = event.results[0][0].transcript;
   };
 
   recognition.onerror = (event) => {
     alert("🎤 Voice recognition failed. Try again.");
-    console.error(event.error);
   };
 }
-// 🎤 Voice Input for Task Field
+
 function startVoice() {
   if (!('webkitSpeechRecognition' in window)) {
-    alert("🎤 Speech Recognition not supported in this browser.");
+    alert("🎤 Speech Recognition not supported.");
     return;
   }
 
@@ -243,15 +232,15 @@ function startVoice() {
 
   recognition.start();
 
-  recognition.onresult = function (event) => {
-    const speechResult = event.results[0][0].transcript;
-    document.getElementById("taskInput").value = speechResult;
+  recognition.onresult = function (event) {
+    document.getElementById("taskInput").value = event.results[0][0].transcript;
   };
 
   recognition.onerror = (event) => {
     alert("❌ Voice input error: " + event.error);
   };
 }
+
 function toggleCalendar() {
   const calDiv = document.getElementById("calendarView");
   calDiv.style.display = calDiv.style.display === "none" ? "block" : "none";
@@ -267,8 +256,7 @@ function renderCalendar() {
     dates[task.date].push(task);
   });
 
-  let html = "<h3>📆 Task Calendar</h3>";
-  html += "<ul style='list-style:none;padding-left:0'>";
+  let html = "<h3>📆 Task Calendar</h3><ul>";
   Object.keys(dates).sort().forEach(date => {
     html += `<li><strong>${date}</strong><ul>`;
     dates[date].forEach(t => {
@@ -276,16 +264,14 @@ function renderCalendar() {
     });
     html += "</ul></li>";
   });
-
   html += "</ul>";
   calDiv.innerHTML = html;
 }
+
+// 🔐 Firebase Auth
 auth.onAuthStateChanged(user => {
-  if (user) {
-    loadTasksFromFirebase(user.uid);
-  } else {
-    auth.signInAnonymously(); // quick auth for demo
-  }
+  if (user) loadTasksFromFirebase(user.uid);
+  else auth.signInAnonymously(); // fallback
 });
 
 function saveTaskToFirebase(task) {
@@ -306,4 +292,13 @@ function loadTasksFromFirebase(uid) {
   });
 }
 
+// 📦 Initial Load
+displayTasks();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log("✅ Service Worker Registered"))
+      .catch(err => console.error("SW Error", err));
+  });
+}
 
