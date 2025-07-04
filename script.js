@@ -242,3 +242,30 @@ if ('serviceWorker' in navigator) {
 
 // 📦 Initial Load
 displayTasks();
+// Create floating bubbles
+for (let i = 0; i < 15; i++) {
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.style.left = `${Math.random() * 100}%`;
+  bubble.style.width = bubble.style.height = `${10 + Math.random() * 30}px`;
+  bubble.style.animationDuration = `${10 + Math.random() * 10}s`;
+  document.body.appendChild(bubble);
+}
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = "inline-block";
+});
+
+installBtn.addEventListener("click", () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      installBtn.style.display = "none";
+    });
+  }
+});

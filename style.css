@@ -261,3 +261,21 @@ body.dark button {
   background-color: #6a0dad;
   color: #fff;
 }
+
+/* Bubbles */
+.bubble {
+  position: fixed;
+  bottom: -100px;
+  width: 40px;
+  height: 40px;
+  background: #d0d0ff;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: floatUp 15s linear infinite;
+  z-index: -1;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-110vh); }
+}
