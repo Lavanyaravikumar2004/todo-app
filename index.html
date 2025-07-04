@@ -17,6 +17,8 @@
       <h1>🟪 Pro To-Do App</h1>
       <button id="toggleTheme">🌙</button>
       <button onclick="startVoiceInput()">🎤</button>
+      <button onclick="toggleCalendarView()">📅 Calendar View</button>
+     <div id="calendarContainer" style="display:none;"></div>
       <div id="userInfo"></div>
     </header>
 
@@ -28,9 +30,12 @@
     </section>
 
     <section class="input-section" style="display:none">
-      <input type="text" id="taskInput" placeholder="➕ Add new task" />
-      <button onclick="startVoiceInput()">🎤</button> <!-- NEW -->
+      <div style="display: flex; gap: 5px; align-items: center;">
+  <input type="text" id="taskInput" placeholder="➕ Add new task" style="flex: 1;" />
+  <button onclick="startVoice()" title="🎤 Voice Input">🎤</button>
+</div>
       <input type="date" id="dueDate" />
+      <input type="time" id="dueTime" />
       <!-- ... rest unchanged -->
        <noscript>Your browser does not support voice input.</noscript>
 
@@ -52,6 +57,7 @@
       </select>
       <input type="file" id="imgInput" />
       <button onclick="addTask()">Add</button>
+      <button onclick="startVoiceInput()">🎤</button>
     </section>
 
     <section class="search-filter" style="display:none">
@@ -60,8 +66,9 @@
         <button onclick="filterTasks('all')">All</button>
         <button onclick="filterTasks('completed')">Completed</button>
         <button onclick="filterTasks('pending')">Pending</button>
-        <button onclick="showCalendar()">📆 Calendar View</button>
-      </div>
+        <button onclick="toggleCalendar()">📅 Calendar View</button>
+<div id="calendarView" style="display:none; margin-top: 20px;"></div>
+
     </section>
 
     <ul id="taskList"></ul>
@@ -87,5 +94,10 @@
   </div>
 
   <script src="script.js"></script>
+  <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 </body>
 </html>

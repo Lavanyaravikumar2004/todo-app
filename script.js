@@ -1,4 +1,17 @@
 // script.js
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function playSound(id) {
@@ -10,8 +23,10 @@ function saveTasks() {
 }
 
 function addTask() {
+  saveTaskToFirebase(task);
   const input = document.getElementById("taskInput");
   const date = document.getElementById("dueDate").value;
+  const time = document.getElementById("dueTime").value;
   const cat = document.getElementById("category").value;
   const priority = document.getElementById("priority").value;
   const repeat = document.getElementById("repeat").value;
@@ -22,6 +37,7 @@ function addTask() {
   const task = {
     text: input.value.trim(),
     date,
+    time,
     cat,
     priority,
     repeat,
@@ -37,6 +53,32 @@ function addTask() {
   displayTasks();
   playSound("ding");
   scheduleReminder(task);
+}
+
+function toggleCalendarView() {
+  const container = document.getElementById("calendarContainer");
+  container.style.display = container.style.display === "none" ? "block" : "none";
+  renderCalendarView();
+}
+
+function renderCalendarView() {
+  const container = document.getElementById("calendarContainer");
+  container.innerHTML = "";
+
+  const grouped = {};
+  tasks.forEach(task => {
+    if (!grouped[task.date]) grouped[task.date] = [];
+    grouped[task.date].push(task);
+  });
+
+  for (const date in grouped) {
+    const div = document.createElement("div");
+    div.innerHTML = `<strong>${date}</strong><ul>${grouped[date].map(t => `<li>${t.text}</li>`).join("")}</ul>`;
+    div.style.border = "1px solid #aaa";
+    div.style.margin = "5px";
+    div.style.padding = "5px";
+    container.appendChild(div);
+  }
 }
 
 function displayTasks(filter = "all") {
@@ -153,14 +195,20 @@ function scheduleReminder(task) {
   if (!('Notification' in window)) return;
   if (Notification.permission !== 'granted') Notification.requestPermission();
 
-  if (task.date === new Date().toISOString().split('T')[0]) {
+  const now = new Date();
+  const taskDateTime = new Date(`${task.date}T${task.time || "09:00"}`);
+
+  const delay = taskDateTime.getTime() - now.getTime();
+
+  if (delay > 0 && delay < 86400000) { // Within 24 hrs
     setTimeout(() => {
-      new Notification("🔔 Reminder", {
-        body: `${task.text} is due today!`
+      new Notification("🔔 Task Reminder", {
+        body: `${task.text} is due now!`
       });
-    }, 3000);
+    }, delay);
   }
 }
+
 
 // Initial Load
 displayTasks();
@@ -182,26 +230,80 @@ function startVoiceInput() {
   };
 }
 // 🎤 Voice Input for Task Field
-function startVoiceInput() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    alert("Your browser does not support Speech Recognition 😔");
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("🎤 Speech Recognition not supported in this browser.");
     return;
   }
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'en-IN';
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
   recognition.start();
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    document.getElementById("taskInput").value = transcript;
+
+  recognition.onresult = function (event) => {
+    const speechResult = event.results[0][0].transcript;
+    document.getElementById("taskInput").value = speechResult;
   };
 
   recognition.onerror = (event) => {
-    alert("🎤 Voice input error: " + event.error);
+    alert("❌ Voice input error: " + event.error);
   };
 }
+function toggleCalendar() {
+  const calDiv = document.getElementById("calendarView");
+  calDiv.style.display = calDiv.style.display === "none" ? "block" : "none";
+  if (calDiv.style.display === "block") renderCalendar();
+}
+
+function renderCalendar() {
+  const calDiv = document.getElementById("calendarView");
+  const dates = {};
+
+  tasks.forEach(task => {
+    if (!dates[task.date]) dates[task.date] = [];
+    dates[task.date].push(task);
+  });
+
+  let html = "<h3>📆 Task Calendar</h3>";
+  html += "<ul style='list-style:none;padding-left:0'>";
+  Object.keys(dates).sort().forEach(date => {
+    html += `<li><strong>${date}</strong><ul>`;
+    dates[date].forEach(t => {
+      html += `<li>${t.done ? "✅" : "⬜"} ${t.text} [${t.cat}] (${t.priority})</li>`;
+    });
+    html += "</ul></li>";
+  });
+
+  html += "</ul>";
+  calDiv.innerHTML = html;
+}
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loadTasksFromFirebase(user.uid);
+  } else {
+    auth.signInAnonymously(); // quick auth for demo
+  }
+});
+
+function saveTaskToFirebase(task) {
+  const user = auth.currentUser;
+  if (!user) return;
+  db.collection("users").doc(user.uid).collection("tasks").add(task);
+}
+
+function loadTasksFromFirebase(uid) {
+  db.collection("users").doc(uid).collection("tasks").onSnapshot(snapshot => {
+    tasks = [];
+    snapshot.forEach(doc => {
+      const task = doc.data();
+      task.id = doc.id;
+      tasks.push(task);
+    });
+    displayTasks();
+  });
+}
+
 
