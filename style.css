@@ -66,6 +66,7 @@ header h1 {
 
 .input-section input[type="text"],
 .input-section input[type="date"],
+.input-section input[type="time"],
 .input-section select {
   flex: 1 1 150px;
   padding: 10px;
@@ -152,10 +153,6 @@ body.dark #taskList li {
   text-decoration: line-through;
 }
 
-#taskList li.focus {
-  border: 2px solid #6a0dad;
-}
-
 #taskList li button {
   align-self: flex-end;
   background: transparent;
@@ -191,39 +188,18 @@ footer button:hover {
 .priority-High {
   border-left: 5px solid red;
 }
-
 .priority-Medium {
   border-left: 5px solid orange;
 }
-
 .priority-Low {
   border-left: 5px solid green;
 }
 
-/* Bubbles (background floating) */
-.bubble {
-  position: fixed;
-  bottom: -100px;
-  background: #e0e0ff;
-  border-radius: 50%;
-  opacity: 0.3;
-  animation: floatUp linear infinite;
-  z-index: -1;
-}
-
-@keyframes floatUp {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-110vh);
-  }
-}
+/* Animation */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeOut {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(10px); }
@@ -232,16 +208,11 @@ footer button:hover {
 .task-animate-in {
   animation: fadeIn 0.4s ease forwards;
 }
-
 .task-animate-out {
   animation: fadeOut 0.3s ease forwards;
 }
 
-input[type="time"] {
-  padding: 5px;
-  font-size: 14px;
-}
-
+/* Calendar Grid */
 #calendarContainer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -251,45 +222,4 @@ input[type="time"] {
 .calendar-today {
   background-color: #e0c3ff;
   border-left: 5px solid #6a0dad;
-}
-
-#auth-section input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-#auth-section button {
-  width: 48%;
-  background: #6a0dad;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-#auth-section button:hover {
-  background: #5100b3;
-}
-#auth-section input,
-#auth-section button {
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-#auth-section button {
-  background: #6a0dad;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-#auth-section button:hover {
-  background: #5100b3;
 }

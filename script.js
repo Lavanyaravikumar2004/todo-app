@@ -1,17 +1,3 @@
-// script.js
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function playSound(id) {
@@ -46,7 +32,6 @@ function addTask() {
   };
 
   tasks.push(task);
-  saveTaskToFirebase(task);
   input.value = "";
   document.getElementById("imgInput")?.value = "";
   saveTasks();
@@ -219,28 +204,7 @@ function startVoiceInput() {
   };
 }
 
-function startVoice() {
-  if (!('webkitSpeechRecognition' in window)) {
-    alert("🎤 Speech Recognition not supported.");
-    return;
-  }
-
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.start();
-
-  recognition.onresult = function (event) {
-    document.getElementById("taskInput").value = event.results[0][0].transcript;
-  };
-
-  recognition.onerror = (event) => {
-    alert("❌ Voice input error: " + event.error);
-  };
-}
-
+// 🖼️ Optional: Toggle calendar modal
 function toggleCalendar() {
   const calDiv = document.getElementById("calendarView");
   calDiv.style.display = calDiv.style.display === "none" ? "block" : "none";
@@ -268,32 +232,10 @@ function renderCalendar() {
   calDiv.innerHTML = html;
 }
 
-// 🔐 Firebase Auth
-auth.onAuthStateChanged(user => {
-  if (user) loadTasksFromFirebase(user.uid);
-  else auth.signInAnonymously(); // fallback
-});
-
-function saveTaskToFirebase(task) {
-  const user = auth.currentUser;
-  if (!user) return;
-  db.collection("users").doc(user.uid).collection("tasks").add(task);
-}
-
-function loadTasksFromFirebase(uid) {
-  db.collection("users").doc(uid).collection("tasks").onSnapshot(snapshot => {
-    tasks = [];
-    snapshot.forEach(doc => {
-      const task = doc.data();
-      task.id = doc.id;
-      tasks.push(task);
-    });
-    displayTasks();
-  });
-}
-
 // 📦 Initial Load
 displayTasks();
+
+// ✅ Register Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
@@ -301,4 +243,3 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error("SW Error", err));
   });
 }
-
