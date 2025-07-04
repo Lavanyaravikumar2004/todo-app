@@ -14,8 +14,8 @@ function addTask() {
   const date = document.getElementById("dueDate").value;
   const cat = document.getElementById("category").value;
   const priority = document.getElementById("priority").value;
-  const imgFile = document.getElementById("imgInput")?.files[0];
   const repeat = document.getElementById("repeat").value;
+  const imgFile = document.getElementById("imgInput")?.files[0];
 
   if (!input.value.trim()) return;
 
@@ -24,19 +24,19 @@ function addTask() {
     date,
     cat,
     priority,
-    done: false,
     repeat,
     img: imgFile ? URL.createObjectURL(imgFile) : null,
+    done: false,
     created: new Date().toISOString()
   };
 
   tasks.push(task);
   input.value = "";
-  if (document.getElementById("imgInput")) document.getElementById("imgInput").value = "";
+  document.getElementById("imgInput")?.value = "";
+  saveTasks();
   displayTasks();
   playSound("ding");
   scheduleReminder(task);
-  saveTasks();
 }
 
 function displayTasks(filter = "all") {
@@ -45,7 +45,7 @@ function displayTasks(filter = "all") {
   list.innerHTML = "";
 
   const today = new Date().toISOString().split('T')[0];
-  let filtered = tasks
+  const filtered = tasks
     .filter(task => {
       if (filter === "completed") return task.done;
       if (filter === "pending") return !task.done;
@@ -53,61 +53,54 @@ function displayTasks(filter = "all") {
     })
     .filter(task => task.text.toLowerCase().includes(search));
 
-  const focusIndex = filtered.findIndex(t => !t.done && t.date === today);
-
   filtered.forEach((task, i) => {
     const li = document.createElement("li");
-    li.className = `${task.done ? "completed" : ""} priority-${task.priority}`;
-    if (i === focusIndex) li.classList.add("focus");
+    li.classList.add("task-animate-in");
+    li.className = `${task.done ? "completed" : ""} priority-${task.priority.toLowerCase()}`;
 
-    let content = `<span onclick="toggleTask(${tasks.indexOf(task)})" style="cursor:pointer;">
-      ${task.done ? '✅' : '⬜'} ${task.text} (${task.date}) [${task.cat}] <strong>[${task.priority}]</strong>
-    </span>`;
-
-    if (task.img) {
-      content += `<br><img src="${task.img}" alt="Task Image" />`;
-    }
-
-    if (task.repeat && task.repeat !== 'None') {
-      content += `<br><small>🔁 Repeats: ${task.repeat}</small>`;
-    }
-
-    li.innerHTML = content + ` <button onclick="deleteTask(${tasks.indexOf(task)})">❌</button>`;
+    li.innerHTML = `
+      <span onclick="toggleTask(${i})" style="cursor:pointer;">
+        ${task.done ? '✅' : '⬜'} ${task.text} (${task.date}) [${task.cat}] <strong>[${task.priority}]</strong>
+      </span>
+      ${task.img ? `<br><img src="${task.img}" alt="Task Image" style="max-width:100px;"/>` : ""}
+      ${task.repeat !== 'None' ? `<br><small>🔁 ${task.repeat}</small>` : ""}
+      <button onclick="deleteTask(${i})">❌</button>
+    `;
     list.appendChild(li);
   });
-
   updateStats();
-  saveTasks();
 }
 
 function toggleTask(i) {
   tasks[i].done = !tasks[i].done;
   playSound("complete");
 
-  if (tasks[i].repeat && tasks[i].done && tasks[i].repeat !== "None") {
+  if (tasks[i].done && tasks[i].repeat !== "None") {
     const next = getNextDate(tasks[i].date, tasks[i].repeat);
     if (next) {
       tasks.push({ ...tasks[i], done: false, date: next });
     }
   }
 
+  saveTasks();
   displayTasks();
 }
-
 function deleteTask(i) {
-  tasks.splice(i, 1);
-  playSound("delete");
-  displayTasks();
-}
-
-function filterTasks(type) {
-  displayTasks(type);
+  const taskItem = document.querySelectorAll("#taskList li")[i];
+  if (taskItem) {
+    taskItem.classList.add("task-animate-out");
+    setTimeout(() => {
+      tasks.splice(i, 1);
+      playSound("delete");
+      displayTasks();
+    }, 300); // Wait for animation
+  }
 }
 
 function clearAll() {
   tasks = [];
-  displayTasks();
   saveTasks();
+  displayTasks();
 }
 
 function exportTasks(type) {
@@ -121,9 +114,24 @@ function exportTasks(type) {
   a.click();
 }
 
+function filterTasks(type) {
+  displayTasks(type);
+}
+
 document.getElementById("searchInput")?.addEventListener("input", () => displayTasks());
-document.getElementById("toggleTheme").addEventListener("click", () => {
+// 🌗 Persist Light/Dark Theme
+const toggleBtn = document.getElementById("toggleTheme");
+
+// Load theme on start
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+
+// Toggle theme on click
+toggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark");
+  const theme = document.body.classList.contains("dark") ? "dark" : "light";
+  localStorage.setItem("theme", theme);
 });
 
 function updateStats() {
@@ -154,5 +162,46 @@ function scheduleReminder(task) {
   }
 }
 
-// Initial display
+// Initial Load
 displayTasks();
+function startVoiceInput() {
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'en-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+  recognition.onresult = (event) => {
+    const speechResult = event.results[0][0].transcript;
+    document.getElementById("taskInput").value = speechResult;
+  };
+
+  recognition.onerror = (event) => {
+    alert("🎤 Voice recognition failed. Try again.");
+    console.error(event.error);
+  };
+}
+// 🎤 Voice Input for Task Field
+function startVoiceInput() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Your browser does not support Speech Recognition 😔");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("taskInput").value = transcript;
+  };
+
+  recognition.onerror = (event) => {
+    alert("🎤 Voice input error: " + event.error);
+  };
+}
+

@@ -1,3 +1,4 @@
+<!-- index.html (Enhanced Pro To-Do App) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +7,8 @@
   <title>Pro To-Do App</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" sizes="192x192" href="icon-192.png" />
-  <link rel="icon" sizes="512x512" href="icon-512.png" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <meta name="theme-color" content="#6a0dad" />
 </head>
 <body>
@@ -15,12 +16,24 @@
     <header>
       <h1>🟪 Pro To-Do App</h1>
       <button id="toggleTheme">🌙</button>
+      <button onclick="startVoiceInput()">🎤</button>
+      <div id="userInfo"></div>
     </header>
 
-    <section class="input-section">
-      <input type="file" id="imgInput" accept="image/*" />
+    <section id="auth-section">
+      <input type="email" id="email" placeholder="📧 Email" />
+      <input type="password" id="password" placeholder="🔒 Password" />
+      <button onclick="login()">🔐 Login</button>
+      <button onclick="signup()">📝 Signup</button>
+    </section>
+
+    <section class="input-section" style="display:none">
       <input type="text" id="taskInput" placeholder="➕ Add new task" />
+      <button onclick="startVoiceInput()">🎤</button> <!-- NEW -->
       <input type="date" id="dueDate" />
+      <!-- ... rest unchanged -->
+       <noscript>Your browser does not support voice input.</noscript>
+
       <select id="category">
         <option value="📚 Study">📚 Study</option>
         <option value="💼 Work">💼 Work</option>
@@ -31,28 +44,30 @@
         <option value="Medium">🟡 Medium</option>
         <option value="High">🔴 High</option>
       </select>
-      <select id="repeat">
-        <option value="None">🔁 No Repeat</option>
-        <option value="Daily">🔁 Daily</option>
-        <option value="Weekly">🔁 Weekly</option>
-        <option value="Monthly">🔁 Monthly</option>
+      <select id="repeatTask">
+        <option value="none">🔁 No Repeat</option>
+        <option value="daily">🔁 Daily</option>
+        <option value="weekly">🔁 Weekly</option>
+        <option value="monthly">🔁 Monthly</option>
       </select>
+      <input type="file" id="imgInput" />
       <button onclick="addTask()">Add</button>
     </section>
 
-    <section class="search-filter">
+    <section class="search-filter" style="display:none">
       <input type="text" id="searchInput" placeholder="🔍 Search tasks" />
       <div class="filters">
         <button onclick="filterTasks('all')">All</button>
         <button onclick="filterTasks('completed')">Completed</button>
         <button onclick="filterTasks('pending')">Pending</button>
+        <button onclick="showCalendar()">📆 Calendar View</button>
       </div>
     </section>
 
     <ul id="taskList"></ul>
 
-    <footer>
-      <div id="stats">📊 0 tasks</div>
+    <footer style="display:none">
+      <div id="stats"></div>
       <button onclick="clearAll()">🗑️ Clear All</button>
       <button onclick="exportTasks('txt')">⬇️ Export TXT</button>
       <button onclick="exportTasks('json')">⬇️ Export JSON</button>
@@ -60,53 +75,17 @@
     </footer>
   </div>
 
-  <!-- Audio -->
   <audio id="ding" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c9e3f979b5.mp3?filename=click-124467.mp3" preload="auto"></audio>
   <audio id="delete" src="https://cdn.pixabay.com/download/audio/2022/03/18/audio_f3a993177d.mp3?filename=pop-94319.mp3" preload="auto"></audio>
   <audio id="complete" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_48bde99868.mp3?filename=notification-112698.mp3" preload="auto"></audio>
 
-  <!-- Main Script -->
+  <div id="calendarModal" class="modal" style="display:none">
+    <div class="modal-content">
+      <span class="close" onclick="document.getElementById('calendarModal').style.display='none'">&times;</span>
+      <div id="calendar"></div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
-
-  <!-- Service Worker & Install & Bubbles -->
-  <script>
-    // PWA install
-    let deferredPrompt;
-    const installBtn = document.getElementById("installBtn");
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = "inline-block";
-      installBtn.addEventListener("click", () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choice) => {
-          if (choice.outcome === "accepted") console.log("App Installed");
-          deferredPrompt = null;
-        });
-      });
-    });
-
-    // Service Worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-
-    // Notification permission
-    if (Notification && Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
-    // Floating Bubbles
-    for (let i = 0; i < 20; i++) {
-      const bubble = document.createElement("div");
-      const size = Math.random() * 60 + 20 + "px";
-      bubble.classList.add("bubble");
-      bubble.style.left = Math.random() * 100 + "vw";
-      bubble.style.width = size;
-      bubble.style.height = size;
-      bubble.style.animationDuration = 10 + Math.random() * 10 + "s";
-      document.body.appendChild(bubble);
-    }
-  </script>
 </body>
 </html>
