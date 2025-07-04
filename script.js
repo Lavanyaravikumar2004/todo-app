@@ -81,8 +81,7 @@ function displayTasks(filter = "all") {
 
   filtered.forEach((task, i) => {
     const li = document.createElement("li");
-    li.classList.add("task-animate-in");
-    li.className = `${task.done ? "completed" : ""} priority-${task.priority.toLowerCase()}`;
+    li.className = `task-animate-in ${task.done ? "completed" : ""} priority-${task.priority.toLowerCase()}`;
 
     li.innerHTML = `
       <span onclick="toggleTask(${i})" style="cursor:pointer;">
@@ -147,16 +146,6 @@ function filterTasks(type) {
 
 document.getElementById("searchInput")?.addEventListener("input", () => displayTasks());
 
-// 🌗 Theme toggle
-const toggleBtn = document.getElementById("toggleTheme");
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-}
-toggleBtn.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
-});
-
 function updateStats() {
   const done = tasks.filter(t => t.done).length;
   const total = tasks.length;
@@ -204,7 +193,17 @@ function startVoiceInput() {
   };
 }
 
-// 🖼️ Optional: Toggle calendar modal
+// 🌗 Theme toggle
+const toggleBtn = document.getElementById("toggleTheme");
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+toggleBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+});
+
+// 📅 Modal Calendar (Optional)
 function toggleCalendar() {
   const calDiv = document.getElementById("calendarView");
   calDiv.style.display = calDiv.style.display === "none" ? "block" : "none";
@@ -232,9 +231,6 @@ function renderCalendar() {
   calDiv.innerHTML = html;
 }
 
-// 📦 Initial Load
-displayTasks();
-
 // ✅ Register Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -243,3 +239,6 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error("SW Error", err));
   });
 }
+
+// 📦 Initial Load
+displayTasks();

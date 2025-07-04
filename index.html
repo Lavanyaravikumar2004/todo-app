@@ -4,47 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pro To-Do App</title>
+  
+  <!-- Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+
+  <!-- Styles & Manifest -->
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#6a0dad" />
 </head>
 <body>
+  <!-- Background Bubbles -->
+  <div class="bubble-bg">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
   <div class="container">
     <header>
       <h1>🟪 Pro To-Do App</h1>
-      <button id="toggleTheme">🌙</button>
-      <button onclick="startVoiceInput()">🎤</button>
-      <button onclick="toggleCalendarView()">📅 Calendar View</button>
-      <div id="calendarContainer" style="display:none;"></div>
+      <button id="toggleTheme" title="Toggle Theme">🌙</button>
+      <button onclick="startVoiceInput()" title="Voice Input">🎤</button>
+      <button onclick="toggleCalendarView()" title="Calendar View">📅 Calendar View</button>
     </header>
 
+    <!-- Calendar Output (hidden initially) -->
+    <div id="calendarContainer" style="display:none;"></div>
+
+    <!-- Auth Section (if using local auth later) -->
+    <!-- <section id="auth-section">
+      <input type="email" id="email" placeholder="📧 Email" />
+      <input type="password" id="password" placeholder="🔒 Password" />
+      <button onclick="login()">🔐 Login</button>
+      <button onclick="signup()">📝 Signup</button>
+    </section> -->
+
+    <!-- Task Input Section -->
     <section class="input-section">
-      <div style="display: flex; gap: 5px; align-items: center;">
-        <input type="text" id="taskInput" placeholder="➕ Add new task" style="flex: 1;" />
+      <div class="input-row">
+        <input type="text" id="taskInput" placeholder="➕ Add new task" />
         <button onclick="startVoiceInput()" title="🎤 Voice Input">🎤</button>
       </div>
+
       <input type="date" id="dueDate" />
       <input type="time" id="dueTime" />
+      
       <select id="category">
         <option value="📚 Study">📚 Study</option>
         <option value="💼 Work">💼 Work</option>
         <option value="🏠 Personal">🏠 Personal</option>
       </select>
+
       <select id="priority">
         <option value="Low">🟢 Low</option>
         <option value="Medium">🟡 Medium</option>
         <option value="High">🔴 High</option>
       </select>
+
       <select id="repeat">
         <option value="none">🔁 No Repeat</option>
         <option value="daily">🔁 Daily</option>
         <option value="weekly">🔁 Weekly</option>
         <option value="monthly">🔁 Monthly</option>
       </select>
+
       <input type="file" id="imgInput" />
       <button onclick="addTask()">Add</button>
     </section>
 
+    <!-- Search and Filter Section -->
     <section class="search-filter">
       <input type="text" id="searchInput" placeholder="🔍 Search tasks" />
       <div class="filters">
@@ -54,8 +82,10 @@
       </div>
     </section>
 
+    <!-- Task List -->
     <ul id="taskList"></ul>
 
+    <!-- Footer Buttons -->
     <footer>
       <div id="stats"></div>
       <button onclick="clearAll()">🗑️ Clear All</button>
@@ -65,20 +95,15 @@
     </footer>
   </div>
 
-  <!-- Sound Effects -->
+  <!-- Audio Effects -->
   <audio id="ding" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c9e3f979b5.mp3?filename=click-124467.mp3" preload="auto"></audio>
   <audio id="delete" src="https://cdn.pixabay.com/download/audio/2022/03/18/audio_f3a993177d.mp3?filename=pop-94319.mp3" preload="auto"></audio>
   <audio id="complete" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_48bde99868.mp3?filename=notification-112698.mp3" preload="auto"></audio>
 
-  <!-- Calendar Modal -->
-  <div id="calendarModal" class="modal" style="display:none">
-    <div class="modal-content">
-      <span class="close" onclick="document.getElementById('calendarModal').style.display='none'">&times;</span>
-      <div id="calendar"></div>
-    </div>
-  </div>
+  <!-- Optional Calendar Modal -->
+  <div id="calendarView" class="modal" style="display:none;"></div>
 
-  <!-- Main Script -->
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
