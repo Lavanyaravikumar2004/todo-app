@@ -1,13 +1,10 @@
 {
   "name": "Pro To-Do App",
   "short_name": "ToDo",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6a0dad",
-  "orientation": "portrait",
-  "scope": "./",
-  "description": "A powerful and user-friendly PWA to manage daily tasks with reminders, voice input, calendar view, and sync.",
   "icons": [
     {
       "src": "icon-192.png",
